@@ -14,14 +14,14 @@ public class CommandParserService {
     private MessageQueueService messageQueue;
 
     public void handle(Map<String, Object> session, String command) {
-        command = command.trim().toLowerCase();
+        command = command.replaceAll("(\\t|\\r?\\n)+", " ").trim().toLowerCase();
         switch (command) {
             case "main": {
                 messageQueue.addQueue(session, messageFactory.getGameOptions());
                 break;
             }
             default: {
-                messageQueue.addQueue(session, new TextMessage("halo aku hwamin"));
+                messageQueue.addQueue(session, new TextMessage(command));
                 break;
             }
         }
