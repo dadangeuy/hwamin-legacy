@@ -5,20 +5,46 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
+import com.rizaldi.hwamin.game.BaseScoreboard;
+import com.rizaldi.hwamin.helper.Emoji;
+import com.rizaldi.hwamin.user.User;
+import com.rizaldi.hwamin.user.UserRepository;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MessageFactoryService {
+    @Autowired
+    private UserRepository userRepository;
     @Getter
     private List<Message> gameOptions = new LinkedList<>();
 
     public MessageFactoryService() {
         setGameOptions();
+    }
+
+    public String getScoreboard(BaseScoreboard scoreboard) {
+        StringBuilder boardBuilder = new StringBuilder();
+        boardBuilder
+                .append(Emoji.console)
+                .append("SCOREBOARD!!")
+                .append(Emoji.console);
+        for (Map.Entry<String, Integer> score : scoreboard.getScores().entrySet()) {
+            boardBuilder
+                    .append('\n')
+                    .append(getName(score.getKey()))
+                    .append(": ")
+                    .append(score.getValue());
+        }
+        return boardBuilder.toString();
+    }
+
+    public String getName(String userId) {
+        Optional<User> result = userRepository.findById(userId);
+        return result.isPresent() ? result.get().getDisplayName() : "unknown";
     }
 
     private void setGameOptions() {

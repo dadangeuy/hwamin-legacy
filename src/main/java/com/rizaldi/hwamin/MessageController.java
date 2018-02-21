@@ -16,7 +16,11 @@ import com.rizaldi.hwamin.user.UserResolverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @LineMessageHandler
@@ -68,7 +72,7 @@ public class MessageController {
     }
 
     private Map<String, Object> getSessionFromEvent(Event event) {
-        Map<String, Object> session = new HashMap<>();
+        Map<String, Object> session = new ConcurrentHashMap<>();
         session.put("userId", event.getSource().getUserId());
         if (event.getSource() instanceof GroupSource) {
             session.put("sessionId", ((GroupSource) event.getSource()).getGroupId());
