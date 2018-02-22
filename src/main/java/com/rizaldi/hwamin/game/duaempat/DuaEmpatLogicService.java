@@ -9,17 +9,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DuaEmpatLogicService {
     private final String[] patterns = {"nnonnoo", "nnonono", "nnnoono", "nnnonoo", "nnnnooo"};
     private final String ops = "+-*/^";
+    private final String digits = "1234567890";
     private Random random = new Random();
     private Map<String, String> solutions = new ConcurrentHashMap<>();
 
     public List<Integer> getQuestion() {
         List<Integer> question = Arrays.asList(
-                random.nextInt(9) + 1,
-                random.nextInt(9) + 1,
-                random.nextInt(9) + 1,
-                random.nextInt(9) + 1);
+                random.nextInt(10),
+                random.nextInt(10),
+                random.nextInt(10),
+                random.nextInt(10));
         findSolution(question);
         return question;
+    }
+
+    public String getSolution(List<Integer> question) {
+        return solutions.getOrDefault(getKey(question), "tidak ada");
     }
 
     private void findSolution(List<Integer> question) {

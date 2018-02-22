@@ -12,7 +12,7 @@ import com.rizaldi.hwamin.helper.Emoji;
 import com.rizaldi.hwamin.helper.Sticker;
 import com.rizaldi.hwamin.message.CommandParserService;
 import com.rizaldi.hwamin.message.MessageQueueService;
-import com.rizaldi.hwamin.user.UserResolverService;
+import com.rizaldi.hwamin.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @LineMessageHandler
 public class MessageController {
     @Autowired
-    private UserResolverService userResolver;
+    private UserService userService;
     @Autowired
     private CommandParserService commandParser;
     @Autowired
@@ -35,21 +35,27 @@ public class MessageController {
     @EventMapping
     public void handle(MessageEvent<TextMessageContent> event) {
         Map<String, Object> session = getSessionFromEvent(event);
-        userResolver.resolveFrom(session);
         messageQueue.createQueue(session);
         try {
             commandParser.handle(session, event.getMessage().getText());
         } catch (Exception e) {
-            messageQueue.addQueue(session, getErrorMessages());
-            messageQueue.finishQueueing(session);
+            handleError(session);
         }
     }
 
     @EventMapping
-    public List<Message> handle(FollowEvent event) {
-        return Arrays.asList(
-                Sticker.welcome,
-                new TextMessage("사랑해 aku hwamin, thanks udah kamu follow " + Emoji.flyKiss));
+    public void handle(FollowEvent event) {
+        Map<String, Object> session = getSessionFromEvent(event);
+        messageQueue.createQueue(session);
+        userService.fetchUser(getSessionFromEvent(event)).whenCompleteAsync((user, error) -> {
+            if (error != null) {
+                handleError(session);
+            } else {
+                messageQueue.addQueue(session, Sticker.welcome);
+                messageQueue.addQueue(session, new TextMessage("사랑해 " + user.getDisplayName() + ", aku hwamin, salam kenal ya!" + Emoji.flyKiss));
+                messageQueue.finishQueueing(session);
+            }
+        });
     }
 
     // TODO: set flag
@@ -66,6 +72,11 @@ public class MessageController {
     // TODO: remove group/room from session
     @EventMapping
     public void handle(LeaveEvent event) {}
+
+    private void handleError(Map<String, Object> session) {
+        messageQueue.addQueue(session, getErrorMessages());
+        messageQueue.finishQueueing(session);
+    }
 
     private List<Message> getErrorMessages() {
         return Collections.singletonList(new TextMessage("duh kayaknya lagi ada gangguan server " + Emoji.panic));

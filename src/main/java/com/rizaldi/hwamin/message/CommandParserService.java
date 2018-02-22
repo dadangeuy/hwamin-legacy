@@ -1,6 +1,9 @@
 package com.rizaldi.hwamin.message;
 
+import com.linecorp.bot.model.message.TextMessage;
 import com.rizaldi.hwamin.game.duaempat.DuaEmpatGameService;
+import com.rizaldi.hwamin.helper.Emoji;
+import com.rizaldi.hwamin.user.UserService;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ public class CommandParserService {
     private DuaEmpatGameService duaEmpatGame;
     @Autowired
     private NotifierService notifier;
+    @Autowired
+    private UserService userService;
     private Map<String, String> gameSession = ExpiringMap.builder()
             .expiration(12, TimeUnit.HOURS)
             .expirationPolicy(ExpirationPolicy.CREATED)
@@ -69,6 +74,13 @@ public class CommandParserService {
                 case "main 24":
                     duaEmpatGame.startSession(session);
                     gameSession.put(sessionId, "duaempat");
+                    notifier.resetTimer(session);
+                    break;
+                case "halo hwamin":
+                    userService.fetchUser(session).thenAcceptAsync(user -> {
+                        messageQueue.addQueue(session, new TextMessage("halo juga " + user.getDisplayName() + Emoji.flyKiss));
+                        messageQueue.finishQueueing(session);
+                    });
                     notifier.resetTimer(session);
                     break;
                 default:

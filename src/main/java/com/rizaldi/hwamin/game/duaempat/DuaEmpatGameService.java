@@ -5,6 +5,7 @@ import com.rizaldi.hwamin.game.BaseScoreboard;
 import com.rizaldi.hwamin.helper.Emoji;
 import com.rizaldi.hwamin.message.MessageFactoryService;
 import com.rizaldi.hwamin.message.MessageQueueService;
+import com.rizaldi.hwamin.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class DuaEmpatGameService {
     private MessageQueueService messageQueue;
     @Autowired
     private MessageFactoryService messageFactory;
+    @Autowired
+    private UserService userService;
     private Map<String, BaseScoreboard> scores = new ConcurrentHashMap<>();
     private Map<String, List<Integer>> questions = new ConcurrentHashMap<>();
 
@@ -54,14 +57,14 @@ public class DuaEmpatGameService {
             boolean result = duaEmpatLogic.isCorrectAnswer(questions.get(sessionId), answer);
             if (result) {
                 scores.get(sessionId).correctScoreForId(userId);
-                messageQueue.addQueue(session, new TextMessage("jawaban " + messageFactory.getName(userId) + " benar" + Emoji.shocked));
+                messageQueue.addQueue(session, new TextMessage("jawaban " + userService.getUserName(userId) + " benar" + Emoji.shocked));
                 messageQueue.addQueue(session, new TextMessage(messageFactory.getScoreboard(scores.get(sessionId))));
                 questions.put(sessionId, duaEmpatLogic.getQuestion());
                 messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
                 messageQueue.finishQueueing(session);
             } else {
                 scores.get(sessionId).wrongScoreForId(userId);
-                messageQueue.addQueue(session, new TextMessage("jawaban " + messageFactory.getName(userId) + " salah" + Emoji.arrogant));
+                messageQueue.addQueue(session, new TextMessage("jawaban " + userService.getUserName(userId) + " salah" + Emoji.arrogant));
                 messageQueue.finishQueueing(session);
             }
         } catch (Exception e) {
@@ -73,17 +76,19 @@ public class DuaEmpatGameService {
         String sessionId = (String) session.get("sessionId"),
                 userId = (String) session.get("userId");
         scores.get(sessionId).giveUpScoreForId(userId);
-        questions.put(sessionId, duaEmpatLogic.getQuestion());
-        messageQueue.addQueue(session, new TextMessage("dasar " + messageFactory.getName(userId) + " lemah" + Emoji.sick));
+        scores.get(sessionId).correctScoreForId("hwamin");
+        List<Integer> oldQuestion = questions.put(sessionId, duaEmpatLogic.getQuestion());
+        messageQueue.addQueue(session, new TextMessage("dasar " + userService.getUserName(userId) + " lemah" + Emoji.sick +
+                                                               "\njawabannya " + duaEmpatLogic.getSolution(oldQuestion) + Emoji.arrogant));
         messageQueue.addQueue(session, new TextMessage(messageFactory.getScoreboard(scores.get(sessionId))));
         messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
         messageQueue.finishQueueing(session);
     }
 
     private String getRules() {
-        return Emoji.mad + "PERATURAN!!" + Emoji.mad + "\naku akan kasih 4 angka, kamu buat hasilnya jadi 24 dengan" +
-                " operasi +-*/() atau jawab 'tidak ada', yang paling duluan jawab yang menang lho, nanti bilang 'nyerah'" +
-                " kalau bingung atau 'udahan' kalau udah capek main ya" + Emoji.laugh;
+        return Emoji.shout + "PERATURAN!!" + Emoji.shout + "\naku akan kasih 4 angka, kamu buat hasilnya jadi 24 dengan" +
+                " operasi +-*/() atau jawab 'tidak ada', dan yang duluan jawab menang.\nbilang 'nyerah'" +
+                " kalau kamu bingung atau 'udahan' kalau udah capek main ya" + Emoji.laugh;
     }
 
     private String getQuestion(Map<String, Object> session) {

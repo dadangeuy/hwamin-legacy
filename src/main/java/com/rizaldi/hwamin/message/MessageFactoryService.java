@@ -7,18 +7,20 @@ import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
 import com.rizaldi.hwamin.game.BaseScoreboard;
 import com.rizaldi.hwamin.helper.Emoji;
-import com.rizaldi.hwamin.user.User;
-import com.rizaldi.hwamin.user.UserRepository;
+import com.rizaldi.hwamin.user.UserService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MessageFactoryService {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Getter
     private List<Message> gameOptions = new LinkedList<>();
 
@@ -32,19 +34,18 @@ public class MessageFactoryService {
                 .append(Emoji.console)
                 .append("SCOREBOARD!!")
                 .append(Emoji.console);
+        boolean unknownName = false;
         for (Map.Entry<String, Integer> score : scoreboard.getScores().entrySet()) {
+            if (!userService.getUser(score.getKey()).isPresent()) unknownName = true;
             boardBuilder
                     .append('\n')
-                    .append(getName(score.getKey()))
+                    .append(userService.getUserName(score.getKey()))
                     .append(": ")
                     .append(score.getValue());
         }
+        if (unknownName)
+            boardBuilder.append("\n\n*follow dulu atau bilang 'halo hwamin' supaya aku bisa tau nama kamu" + Emoji.please);
         return boardBuilder.toString();
-    }
-
-    public String getName(String userId) {
-        Optional<User> result = userRepository.findById(userId);
-        return result.isPresent() ? result.get().getDisplayName() : "unknown";
     }
 
     private void setGameOptions() {
