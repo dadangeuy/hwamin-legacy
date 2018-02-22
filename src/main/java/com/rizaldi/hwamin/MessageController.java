@@ -66,7 +66,7 @@ public class MessageController {
     public List<Message> handle(JoinEvent event) {
         return Arrays.asList(
                 Sticker.blushing,
-                new TextMessage("사랑합니다 aku hwamin, makasih udah kamu invite ke grup " + Emoji.kiss));
+                new TextMessage("사랑합니다 aku hwamin, salam kenal semuanya! " + Emoji.relieved));
     }
 
     // TODO: remove group/room from session
