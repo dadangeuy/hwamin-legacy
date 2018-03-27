@@ -1,4 +1,4 @@
-package com.rizaldi.hwamin.message;
+package com.rizaldi.hwamin.service;
 
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.message.Message;
@@ -6,9 +6,9 @@ import com.linecorp.bot.model.message.TemplateMessage;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.template.CarouselColumn;
 import com.linecorp.bot.model.message.template.CarouselTemplate;
-import com.rizaldi.hwamin.game.BaseScoreboard;
 import com.rizaldi.hwamin.helper.Emoji;
-import com.rizaldi.hwamin.user.UserService;
+import com.rizaldi.hwamin.model.BaseScoreboard;
+import com.rizaldi.hwamin.repository.UserService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

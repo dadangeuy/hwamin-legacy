@@ -1,11 +1,10 @@
-package com.rizaldi.hwamin.game.duaempat;
+package com.rizaldi.hwamin.service;
 
 import com.linecorp.bot.model.message.TextMessage;
-import com.rizaldi.hwamin.game.BaseScoreboard;
+import com.rizaldi.hwamin.controller.MessageOutController;
 import com.rizaldi.hwamin.helper.Emoji;
-import com.rizaldi.hwamin.message.MessageFactoryService;
-import com.rizaldi.hwamin.message.MessageQueueService;
-import com.rizaldi.hwamin.user.UserService;
+import com.rizaldi.hwamin.model.BaseScoreboard;
+import com.rizaldi.hwamin.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class DuaEmpatGameService {
     private final DuaEmpatLogicService duaEmpatLogic;
-    private final MessageQueueService messageQueue;
+    private final MessageOutController messageQueue;
     private final MessageFactoryService messageFactory;
     private final UserService userService;
     private Map<String, BaseScoreboard> scores = new ConcurrentHashMap<>();
@@ -24,7 +23,7 @@ public class DuaEmpatGameService {
 
     @Autowired
     public DuaEmpatGameService(DuaEmpatLogicService duaEmpatLogic,
-                               MessageQueueService messageQueue,
+                               MessageOutController messageQueue,
                                MessageFactoryService messageFactory,
                                UserService userService) {
         this.duaEmpatLogic = duaEmpatLogic;

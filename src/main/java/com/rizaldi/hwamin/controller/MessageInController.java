@@ -1,4 +1,4 @@
-package com.rizaldi.hwamin;
+package com.rizaldi.hwamin.controller;
 
 import com.linecorp.bot.model.event.*;
 import com.linecorp.bot.model.event.message.TextMessageContent;
@@ -10,9 +10,8 @@ import com.linecorp.bot.spring.boot.annotation.EventMapping;
 import com.linecorp.bot.spring.boot.annotation.LineMessageHandler;
 import com.rizaldi.hwamin.helper.Emoji;
 import com.rizaldi.hwamin.helper.Sticker;
-import com.rizaldi.hwamin.message.CommandParserService;
-import com.rizaldi.hwamin.message.MessageQueueService;
-import com.rizaldi.hwamin.user.UserService;
+import com.rizaldi.hwamin.repository.UserService;
+import com.rizaldi.hwamin.service.CommandParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -24,15 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @LineMessageHandler
-public class MessageController {
+public class MessageInController {
     private final UserService userService;
     private final CommandParserService commandParser;
-    private final MessageQueueService messageQueue;
+    private final MessageOutController messageQueue;
 
     @Autowired
-    public MessageController(UserService userService,
-                             CommandParserService commandParser,
-                             MessageQueueService messageQueue) {
+    public MessageInController(UserService userService,
+                               CommandParserService commandParser,
+                               MessageOutController messageQueue) {
         this.userService = userService;
         this.commandParser = commandParser;
         this.messageQueue = messageQueue;

@@ -1,4 +1,4 @@
-package com.rizaldi.hwamin.game.duaempat;
+package com.rizaldi.hwamin.service;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;

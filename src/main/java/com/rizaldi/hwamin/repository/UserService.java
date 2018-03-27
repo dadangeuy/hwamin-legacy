@@ -1,6 +1,7 @@
-package com.rizaldi.hwamin.user;
+package com.rizaldi.hwamin.repository;
 
 import com.linecorp.bot.client.LineMessagingClient;
+import com.rizaldi.hwamin.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;

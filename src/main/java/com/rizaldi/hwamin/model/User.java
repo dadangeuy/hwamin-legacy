@@ -1,4 +1,4 @@
-package com.rizaldi.hwamin.user;
+package com.rizaldi.hwamin.model;
 
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import lombok.Data;

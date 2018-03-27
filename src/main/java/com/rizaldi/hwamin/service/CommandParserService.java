@@ -1,9 +1,9 @@
-package com.rizaldi.hwamin.message;
+package com.rizaldi.hwamin.service;
 
 import com.linecorp.bot.model.message.TextMessage;
-import com.rizaldi.hwamin.game.duaempat.DuaEmpatGameService;
+import com.rizaldi.hwamin.controller.MessageOutController;
 import com.rizaldi.hwamin.helper.Emoji;
-import com.rizaldi.hwamin.user.UserService;
+import com.rizaldi.hwamin.repository.UserService;
 import net.jodah.expiringmap.ExpirationPolicy;
 import net.jodah.expiringmap.ExpiringMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CommandParserService {
     private final MessageFactoryService messageFactory;
-    private final MessageQueueService messageQueue;
+    private final MessageOutController messageQueue;
     private final DuaEmpatGameService duaEmpatGame;
     private final NotifierService notifier;
     private final UserService userService;
@@ -23,7 +23,7 @@ public class CommandParserService {
 
     @Autowired
     public CommandParserService(MessageFactoryService messageFactory,
-                                MessageQueueService messageQueue,
+                                MessageOutController messageQueue,
                                 DuaEmpatGameService duaEmpatGame,
                                 NotifierService notifier,
                                 UserService userService) {

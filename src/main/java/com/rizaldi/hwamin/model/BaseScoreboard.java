@@ -1,4 +1,4 @@
-package com.rizaldi.hwamin.game;
+package com.rizaldi.hwamin.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

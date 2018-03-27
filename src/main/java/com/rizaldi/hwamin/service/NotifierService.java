@@ -1,8 +1,9 @@
-package com.rizaldi.hwamin.message;
+package com.rizaldi.hwamin.service;
 
 import com.linecorp.bot.model.message.TextMessage;
+import com.rizaldi.hwamin.controller.MessageOutController;
 import com.rizaldi.hwamin.helper.Emoji;
-import com.rizaldi.hwamin.user.UserService;
+import com.rizaldi.hwamin.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,12 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class NotifierService {
-    private final MessageQueueService messageQueue;
+    private final MessageOutController messageQueue;
     private final UserService userService;
     private Map<String, Long> timers = new ConcurrentHashMap<>();
 
     @Autowired
-    public NotifierService(MessageQueueService messageQueue,
+    public NotifierService(MessageOutController messageQueue,
                            UserService userService) {
         this.messageQueue = messageQueue;
         this.userService = userService;

@@ -1,6 +1,6 @@
 package com.rizaldi.hwamin;
 
-import com.rizaldi.hwamin.game.duaempat.DuaEmpatLogicService;
+import com.rizaldi.hwamin.service.DuaEmpatLogicService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

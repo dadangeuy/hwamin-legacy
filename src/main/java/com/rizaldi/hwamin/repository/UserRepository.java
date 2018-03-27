@@ -1,5 +1,6 @@
-package com.rizaldi.hwamin.user;
+package com.rizaldi.hwamin.repository;
 
+import com.rizaldi.hwamin.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
