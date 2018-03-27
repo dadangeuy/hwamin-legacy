@@ -1,5 +1,6 @@
 package com.rizaldi.hwamin.game.duaempat;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -9,25 +10,24 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DuaEmpatLogicService {
     private final String[] patterns = {"nnonnoo", "nnonono", "nnnoono", "nnnonoo", "nnnnooo"};
     private final String ops = "+-*/^";
-    private final String digits = "1234567890";
     private Random random = new Random();
     private Map<String, String> solutions = new ConcurrentHashMap<>();
 
     public List<Integer> getQuestion() {
-        List<Integer> question = Arrays.asList(
-                random.nextInt(10),
-                random.nextInt(10),
-                random.nextInt(10),
-                random.nextInt(10));
-        findSolution(question);
-        return question;
+        return Arrays.asList(
+                random.nextInt(20),
+                random.nextInt(20),
+                random.nextInt(20),
+                random.nextInt(20));
     }
 
     public String getSolution(List<Integer> question) {
+        findSolution(question);
         return solutions.getOrDefault(getKey(question), "tidak ada");
     }
 
     private void findSolution(List<Integer> question) {
+        if (solutions.containsKey(getKey(question))) return;
         Set<List<Integer>> dPerms = new HashSet<>(4 * 3 * 2);
         permute(question, dPerms, 0);
         int total = 4 * 4 * 4;
@@ -40,12 +40,10 @@ public class DuaEmpatLogicService {
                 for (List<Integer> opr : oPerms) {
                     int i = 0, j = 0;
                     for (char c : patternChars) {
-                        if (c == 'n')
-                            sb.append(dig.get(i++));
-                        else
-                            sb.append(ops.charAt(opr.get(j++)));
+                        if (c == 'n') sb.append(dig.get(i++)).append(' ');
+                        else sb.append(ops.charAt(opr.get(j++))).append(' ');
                     }
-                    String candidate = sb.toString();
+                    String candidate = sb.toString().trim();
                     try {
                         if (evaluateAnswer(candidate)) {
                             solutions.put(getKey(question), postfixToInfix(candidate));
@@ -77,9 +75,9 @@ public class DuaEmpatLogicService {
     private boolean evaluateAnswer(String answer) throws Exception {
         Stack<Float> s = new Stack<>();
         try {
-            for (char c : answer.toCharArray()) {
-                if (Character.isDigit(c)) s.push((float) c - '0');
-                else s.push(applyOperator(s.pop(), s.pop(), c));
+            for (String l : answer.split(" ")) {
+                if (StringUtils.isNumeric(l)) s.push(Float.valueOf(l));
+                else s.push(applyOperator(s.pop(), s.pop(), l.charAt(0)));
             }
         } catch (EmptyStackException e) {
             throw new Exception("Invalid entry.");
@@ -158,8 +156,8 @@ public class DuaEmpatLogicService {
             }
         }
         Stack<Expression> expr = new Stack<>();
-        for (char c : postfix.toCharArray()) {
-            int idx = ops.indexOf(c);
+        for (String s : postfix.split(" ")) {
+            int idx = ops.indexOf(s);
             if (idx != -1) {
                 Expression r = expr.pop();
                 Expression l = expr.pop();
@@ -168,9 +166,9 @@ public class DuaEmpatLogicService {
                     l.ex = '(' + l.ex + ')';
                 if (r.prec <= opPrec)
                     r.ex = '(' + r.ex + ')';
-                expr.push(new Expression(l.ex, r.ex, "" + c));
+                expr.push(new Expression(l.ex, r.ex, "" + s));
             } else {
-                expr.push(new Expression("" + c));
+                expr.push(new Expression("" + s));
             }
         }
         return expr.peek().ex;
