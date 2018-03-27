@@ -30,7 +30,7 @@ public class DuaEmpatLogicService {
 
     public String getSolution(List<Integer> question) {
         findSolution(question);
-        return solutions.getOrDefault(getKey(question), "tidak ada");
+        return solutions.get(getKey(question));
     }
 
     private void findSolution(List<Integer> question) {
@@ -61,6 +61,7 @@ public class DuaEmpatLogicService {
                 }
             }
         }
+        solutions.put(getKey(question), "tidak ada");
     }
 
     private String getKey(List<Integer> question) {
