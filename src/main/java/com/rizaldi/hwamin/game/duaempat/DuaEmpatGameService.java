@@ -15,16 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DuaEmpatGameService {
-    @Autowired
-    private DuaEmpatLogicService duaEmpatLogic;
-    @Autowired
-    private MessageQueueService messageQueue;
-    @Autowired
-    private MessageFactoryService messageFactory;
-    @Autowired
-    private UserService userService;
+    private final DuaEmpatLogicService duaEmpatLogic;
+    private final MessageQueueService messageQueue;
+    private final MessageFactoryService messageFactory;
+    private final UserService userService;
     private Map<String, BaseScoreboard> scores = new ConcurrentHashMap<>();
     private Map<String, List<Integer>> questions = new ConcurrentHashMap<>();
+
+    @Autowired
+    public DuaEmpatGameService(DuaEmpatLogicService duaEmpatLogic,
+                               MessageQueueService messageQueue,
+                               MessageFactoryService messageFactory,
+                               UserService userService) {
+        this.duaEmpatLogic = duaEmpatLogic;
+        this.messageQueue = messageQueue;
+        this.messageFactory = messageFactory;
+        this.userService = userService;
+    }
 
     public void startSession(Map<String, Object> session) {
         String sessionId = (String) session.get("sessionId");

@@ -25,12 +25,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @LineMessageHandler
 public class MessageController {
+    private final UserService userService;
+    private final CommandParserService commandParser;
+    private final MessageQueueService messageQueue;
+
     @Autowired
-    private UserService userService;
-    @Autowired
-    private CommandParserService commandParser;
-    @Autowired
-    private MessageQueueService messageQueue;
+    public MessageController(UserService userService,
+                             CommandParserService commandParser,
+                             MessageQueueService messageQueue) {
+        this.userService = userService;
+        this.commandParser = commandParser;
+        this.messageQueue = messageQueue;
+    }
 
     @EventMapping
     public void handle(MessageEvent<TextMessageContent> event) {

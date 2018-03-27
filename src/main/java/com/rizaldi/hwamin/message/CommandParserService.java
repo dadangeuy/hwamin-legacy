@@ -14,29 +14,38 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class CommandParserService {
+    private final MessageFactoryService messageFactory;
+    private final MessageQueueService messageQueue;
+    private final DuaEmpatGameService duaEmpatGame;
+    private final NotifierService notifier;
+    private final UserService userService;
+    private final Map<String, String> gameSession;
+
     @Autowired
-    private MessageFactoryService messageFactory;
-    @Autowired
-    private MessageQueueService messageQueue;
-    @Autowired
-    private DuaEmpatGameService duaEmpatGame;
-    @Autowired
-    private NotifierService notifier;
-    @Autowired
-    private UserService userService;
-    private Map<String, String> gameSession = ExpiringMap.builder()
-            .expiration(12, TimeUnit.HOURS)
-            .expirationPolicy(ExpirationPolicy.CREATED)
-            .expirationListener((String sessionId, String game) -> {
-                switch (game) {
-                    case "duaempat":
-                        duaEmpatGame.expiredSession(sessionId);
-                        break;
-                    default:
-                        break;
-                }
-            })
-            .build();
+    public CommandParserService(MessageFactoryService messageFactory,
+                                MessageQueueService messageQueue,
+                                DuaEmpatGameService duaEmpatGame,
+                                NotifierService notifier,
+                                UserService userService) {
+        this.messageFactory = messageFactory;
+        this.messageQueue = messageQueue;
+        this.duaEmpatGame = duaEmpatGame;
+        this.notifier = notifier;
+        this.userService = userService;
+        this.gameSession = ExpiringMap.builder()
+                .expiration(12, TimeUnit.HOURS)
+                .expirationPolicy(ExpirationPolicy.CREATED)
+                .expirationListener((String sessionId, String game) -> {
+                    switch (game) {
+                        case "duaempat":
+                            duaEmpatGame.expiredSession(sessionId);
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .build();
+    }
 
     public void handle(Map<String, Object> session, String command) {
         command = command.replaceAll("(\\t|\\r?\\n)+", " ").trim().toLowerCase();

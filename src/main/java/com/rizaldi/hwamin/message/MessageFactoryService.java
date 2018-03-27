@@ -19,13 +19,14 @@ import java.util.Map;
 
 @Service
 public class MessageFactoryService {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
     @Getter
     private List<Message> gameOptions = new LinkedList<>();
 
-    public MessageFactoryService() {
+    @Autowired
+    public MessageFactoryService(UserService userService) {
         setGameOptions();
+        this.userService = userService;
     }
 
     public String getScoreboard(BaseScoreboard scoreboard) {

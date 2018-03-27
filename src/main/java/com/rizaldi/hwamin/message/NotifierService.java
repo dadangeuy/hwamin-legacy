@@ -12,11 +12,16 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class NotifierService {
-    @Autowired
-    private MessageQueueService messageQueue;
-    @Autowired
-    private UserService userService;
+    private final MessageQueueService messageQueue;
+    private final UserService userService;
     private Map<String, Long> timers = new ConcurrentHashMap<>();
+
+    @Autowired
+    public NotifierService(MessageQueueService messageQueue,
+                           UserService userService) {
+        this.messageQueue = messageQueue;
+        this.userService = userService;
+    }
 
     public void checkNotification(Map<String, Object> session) {
         String sessionId = (String) session.get("sessionId");

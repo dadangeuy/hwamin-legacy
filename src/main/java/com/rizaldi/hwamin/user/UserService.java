@@ -12,10 +12,15 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserService {
+    private final LineMessagingClient client;
+    private final UserRepository repository;
+
     @Autowired
-    private LineMessagingClient client;
-    @Autowired
-    private UserRepository repository;
+    public UserService(LineMessagingClient client,
+                       UserRepository repository) {
+        this.client = client;
+        this.repository = repository;
+    }
 
     public CompletableFuture<User> fetchUser(Map<String, Object> session) {
         CompletableFuture<User> futureResponse;

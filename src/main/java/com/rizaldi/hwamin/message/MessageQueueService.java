@@ -13,9 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MessageQueueService {
-    @Autowired
-    private LineMessagingClient client;
+    private final LineMessagingClient client;
     private Map<String, List<Message>> messagesQueue = new ConcurrentHashMap<>();
+
+    @Autowired
+    public MessageQueueService(LineMessagingClient client) {this.client = client;}
 
     public void createQueue(Map<String, Object> session) {
         messagesQueue.put(getTokenFrom(session), new LinkedList<>());
