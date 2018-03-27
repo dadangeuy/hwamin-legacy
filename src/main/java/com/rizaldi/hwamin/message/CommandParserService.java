@@ -61,8 +61,7 @@ public class CommandParserService {
                             messageQueue.finishQueueing(session);
                             break;
                         case "main 24":
-                            messageQueue.addQueue(session, messageFactory.getGameAlreadyStarted());
-                            messageQueue.finishQueueing(session);
+                            duaEmpatGame.viewQuestion(session);
                             break;
                         case "nyerah":
                             duaEmpatGame.giveUp(session);

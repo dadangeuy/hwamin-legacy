@@ -52,6 +52,11 @@ public class DuaEmpatGameService {
         expiredSession(sessionId);
     }
 
+    public void viewQuestion(Map<String, Object> session) {
+        messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
+        messageQueue.finishQueueing(session);
+    }
+
     public void expiredSession(String sessionId) {
         scores.remove(sessionId);
         questions.remove(sessionId);
