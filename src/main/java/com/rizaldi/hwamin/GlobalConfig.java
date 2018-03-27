@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableCaching
-public class ApplicationConfiguration {
+public class GlobalConfig {
 }

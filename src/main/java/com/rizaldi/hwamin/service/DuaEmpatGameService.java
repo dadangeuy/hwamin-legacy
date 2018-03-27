@@ -3,30 +3,32 @@ package com.rizaldi.hwamin.service;
 import com.linecorp.bot.model.message.TextMessage;
 import com.rizaldi.hwamin.controller.MessageOutController;
 import com.rizaldi.hwamin.helper.Emoji;
+import com.rizaldi.hwamin.helper.Solver24;
 import com.rizaldi.hwamin.model.BaseScoreboard;
 import com.rizaldi.hwamin.repository.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DuaEmpatGameService {
-    private final DuaEmpatLogicService duaEmpatLogic;
     private final MessageOutController messageQueue;
     private final MessageFactoryService messageFactory;
     private final UserService userService;
-    private Map<String, BaseScoreboard> scores = new ConcurrentHashMap<>();
-    private Map<String, List<Integer>> questions = new ConcurrentHashMap<>();
+    private final Map<String, BaseScoreboard> scores = new ConcurrentHashMap<>();
+    private final Map<String, List<Integer>> questions = new ConcurrentHashMap<>();
+    private final Solver24 solver = new Solver24();
+    private final Random random = new Random();
 
     @Autowired
-    public DuaEmpatGameService(DuaEmpatLogicService duaEmpatLogic,
-                               MessageOutController messageQueue,
+    public DuaEmpatGameService(MessageOutController messageQueue,
                                MessageFactoryService messageFactory,
                                UserService userService) {
-        this.duaEmpatLogic = duaEmpatLogic;
         this.messageQueue = messageQueue;
         this.messageFactory = messageFactory;
         this.userService = userService;
@@ -37,7 +39,7 @@ public class DuaEmpatGameService {
         BaseScoreboard scoreboard = new BaseScoreboard();
         scoreboard.setId(sessionId);
         scores.put(sessionId, scoreboard);
-        questions.put(sessionId, duaEmpatLogic.getQuestion());
+        createRandomQuestion(session);
         messageQueue.addQueue(session, new TextMessage(getRules()));
         messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
         messageQueue.finishQueueing(session);
@@ -65,12 +67,12 @@ public class DuaEmpatGameService {
         String sessionId = (String) session.get("sessionId"),
                 userId = (String) session.get("userId");
         try {
-            boolean result = duaEmpatLogic.isCorrectAnswer(questions.get(sessionId), answer);
+            boolean result = solver.isCorrect(questions.get(sessionId), answer);
             if (result) {
                 scores.get(sessionId).correctScoreForId(userId);
                 messageQueue.addQueue(session, new TextMessage("jawaban " + userService.getUserName(userId) + " benar" + Emoji.shocked));
                 messageQueue.addQueue(session, messageFactory.getScoreboard(scores.get(sessionId)));
-                questions.put(sessionId, duaEmpatLogic.getQuestion());
+                createRandomQuestion(session);
                 messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
                 messageQueue.finishQueueing(session);
             } else {
@@ -88,12 +90,20 @@ public class DuaEmpatGameService {
                 userId = (String) session.get("userId");
         scores.get(sessionId).giveUpScoreForId(userId);
         scores.get(sessionId).correctScoreForId("hwamin");
-        List<Integer> oldQuestion = questions.put(sessionId, duaEmpatLogic.getQuestion());
-        messageQueue.addQueue(session, new TextMessage("dasar " + userService.getUserName(userId) + " lemah" + Emoji.sick +
-                                                               "\njawabannya " + duaEmpatLogic.getSolution(oldQuestion) + Emoji.arrogant));
+        List<Integer> oldQuestion = createRandomQuestion(session);
+        messageQueue.addQueue(session, new TextMessage("dasar " + userService.getUserName(userId) + " lemah" + Emoji.sick + "\njawabannya " + solver.getSolution(oldQuestion) + Emoji.arrogant));
         messageQueue.addQueue(session, messageFactory.getScoreboard(scores.get(sessionId)));
         messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
         messageQueue.finishQueueing(session);
+    }
+
+    private List<Integer> createRandomQuestion(Map<String, Object> session) {
+        String sessionId = (String) session.get("sessionId");
+        return questions.put(sessionId,
+                             Arrays.asList(random.nextInt(20),
+                                           random.nextInt(20),
+                                           random.nextInt(20),
+                                           random.nextInt(20)));
     }
 
     private String getRules() {

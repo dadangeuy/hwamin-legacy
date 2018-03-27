@@ -1,39 +1,31 @@
-package com.rizaldi.hwamin.service;
+package com.rizaldi.hwamin.helper;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
-public class DuaEmpatLogicService {
+public class Solver24 {
     private final String[] patterns = {"nnonnoo", "nnonono", "nnnoono", "nnnonoo", "nnnnooo"};
     private final String ops = "+-*/^";
-    private final Random random = new Random();
     private final Map<String, String> solutions = new ConcurrentHashMap<>();
     private final ExpressionParser parser = new SpelExpressionParser();
 
-    public List<Integer> getQuestion() {
-        return Arrays.asList(random.nextInt(20), random.nextInt(20), random.nextInt(20), random.nextInt(20));
-    }
 
-    public boolean isCorrectAnswer(List<Integer> question, String answer) throws Exception {
-        if (isEqualsToGeneratedSolution(question, answer)) return true;
-        else if (answer.equals("tidak ada") && solutions.containsKey(getKey(question))) return false;
+    public boolean isCorrect(List<Integer> question, String answer) throws Exception {
+        generateSolution(question);
         validateDigits(question, answer);
         return evaluateAnswer(answer);
     }
 
-
     public String getSolution(List<Integer> question) {
-        findSolution(question);
+        generateSolution(question);
         return solutions.get(getKey(question));
     }
 
-    private void findSolution(List<Integer> question) {
+    private void generateSolution(List<Integer> question) {
         if (solutions.containsKey(getKey(question))) return;
         Set<List<Integer>> dPerms = new HashSet<>(4 * 3 * 2);
         permute(question, dPerms, 0);
@@ -67,10 +59,6 @@ public class DuaEmpatLogicService {
     private String getKey(List<Integer> question) {
         Collections.sort(question);
         return question.toString();
-    }
-
-    private boolean isEqualsToGeneratedSolution(List<Integer> question, String answer) {
-        return answer.equals(solutions.getOrDefault(getKey(question), "tidak ada"));
     }
 
     private boolean evaluateAnswer(String answer) throws Exception {

@@ -1,10 +1,9 @@
 package com.rizaldi.hwamin;
 
-import com.rizaldi.hwamin.service.DuaEmpatLogicService;
+import com.rizaldi.hwamin.helper.Solver24;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -13,23 +12,24 @@ import java.util.Arrays;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class DuaEmpatTest {
-    @Autowired DuaEmpatLogicService logic;
+    private final Solver24 solver = new Solver24();
 
     @Test
     public void testSolve() {
-        String sol = logic.getSolution(Arrays.asList(1, 1, 1, 12));
+
+        String sol = solver.getSolution(Arrays.asList(1, 1, 1, 12));
         Assert.assertNotEquals(sol, "tidak ada");
-        sol = logic.getSolution(Arrays.asList(31, 17, 99, 13));
+        sol = solver.getSolution(Arrays.asList(31, 17, 99, 13));
         Assert.assertEquals(sol, "tidak ada");
-        sol = logic.getSolution(Arrays.asList(12, 1, 24, 12));
+        sol = solver.getSolution(Arrays.asList(12, 1, 24, 12));
         Assert.assertNotEquals(sol, "tidak ada");
     }
 
     @Test
     public void testAnswer() throws Exception {
-        boolean sol = logic.isCorrectAnswer(Arrays.asList(1, 1, 1, 12), "(1+1)*1*12");
+        boolean sol = solver.isCorrect(Arrays.asList(1, 1, 1, 12), "(1+1)*1*12");
         Assert.assertEquals(sol, true);
-        sol = logic.isCorrectAnswer(Arrays.asList(1, 1, 1, 12), "(1-1)*1*12");
+        sol = solver.isCorrect(Arrays.asList(1, 1, 1, 12), "(1-1)*1*12");
         Assert.assertEquals(sol, false);
     }
 }
