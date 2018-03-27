@@ -56,6 +56,12 @@ public class CommandParserService {
             switch (game) {
                 case "duaempat":
                     switch (command) {
+                        case "main":
+                            messageQueue.addQueue(session, messageFactory.getGameAlreadyStarted());
+                            break;
+                        case "main 24":
+                            messageQueue.addQueue(session, messageFactory.getGameAlreadyStarted());
+                            break;
                         case "nyerah":
                             duaEmpatGame.giveUp(session);
                             break;

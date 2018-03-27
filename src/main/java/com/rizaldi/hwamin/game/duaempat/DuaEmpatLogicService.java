@@ -154,19 +154,4 @@ public class DuaEmpatLogicService {
         for (int i = 0, npow = n * n; i < total; i++)
             res.add(Arrays.asList((i / npow), (i % npow) / n, i % n));
     }
-
-    private float applyOperator(float a, float b, char c) {
-        switch (c) {
-            case '+':
-                return a + b;
-            case '-':
-                return b - a;
-            case '*':
-                return a * b;
-            case '/':
-                return b / a;
-            default:
-                return Float.NaN;
-        }
-    }
 }

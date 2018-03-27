@@ -47,7 +47,7 @@ public class DuaEmpatGameService {
     public void endSession(Map<String, Object> session) {
         String sessionId = (String) session.get("sessionId");
         messageQueue.addQueue(session, new TextMessage("yah kok udahan" + Emoji.tired));
-        messageQueue.addQueue(session, new TextMessage(messageFactory.getScoreboard(scores.get(sessionId))));
+        messageQueue.addQueue(session, messageFactory.getScoreboard(scores.get(sessionId)));
         messageQueue.finishQueueing(session);
         expiredSession(sessionId);
     }
@@ -65,7 +65,7 @@ public class DuaEmpatGameService {
             if (result) {
                 scores.get(sessionId).correctScoreForId(userId);
                 messageQueue.addQueue(session, new TextMessage("jawaban " + userService.getUserName(userId) + " benar" + Emoji.shocked));
-                messageQueue.addQueue(session, new TextMessage(messageFactory.getScoreboard(scores.get(sessionId))));
+                messageQueue.addQueue(session, messageFactory.getScoreboard(scores.get(sessionId)));
                 questions.put(sessionId, duaEmpatLogic.getQuestion());
                 messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
                 messageQueue.finishQueueing(session);
@@ -87,7 +87,7 @@ public class DuaEmpatGameService {
         List<Integer> oldQuestion = questions.put(sessionId, duaEmpatLogic.getQuestion());
         messageQueue.addQueue(session, new TextMessage("dasar " + userService.getUserName(userId) + " lemah" + Emoji.sick +
                                                                "\njawabannya " + duaEmpatLogic.getSolution(oldQuestion) + Emoji.arrogant));
-        messageQueue.addQueue(session, new TextMessage(messageFactory.getScoreboard(scores.get(sessionId))));
+        messageQueue.addQueue(session, messageFactory.getScoreboard(scores.get(sessionId)));
         messageQueue.addQueue(session, new TextMessage(getQuestion(session)));
         messageQueue.finishQueueing(session);
     }
