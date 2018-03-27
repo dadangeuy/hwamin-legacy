@@ -16,6 +16,7 @@ public class Solver24 {
 
     public boolean isCorrect(List<Integer> question, String answer) throws Exception {
         generateSolution(question);
+        if (solutions.get(getKey(question)).equals(answer)) return true;
         validateDigits(question, answer);
         return evaluateAnswer(answer);
     }
