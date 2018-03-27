@@ -50,10 +50,10 @@ public class DuaEmpatLogicService {
                         if (c == 'n') sb.append(dig.get(i++)).append(' ');
                         else sb.append(ops.charAt(opr.get(j++))).append(' ');
                     }
-                    String candidate = sb.toString().trim();
+                    String candidate = postfixToInfix(sb.toString().trim());
                     try {
                         if (evaluateAnswer(candidate)) {
-                            solutions.put(getKey(question), postfixToInfix(candidate));
+                            solutions.put(getKey(question), candidate);
                             return;
                         }
                     } catch (Exception ignored) {}
