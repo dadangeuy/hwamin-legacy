@@ -52,6 +52,7 @@ public class CommandParserService {
         String sessionId = (String) session.get("sessionId");
         boolean inGame = gameSession.containsKey(sessionId);
         if (inGame) {
+            notifier.resetTimer(session);
             String game = gameSession.get(sessionId);
             switch (game) {
                 case "duaempat":
@@ -62,6 +63,12 @@ public class CommandParserService {
                             break;
                         case "main 24":
                             duaEmpatGame.viewQuestion(session);
+                            break;
+                        case "halo hwamin":
+                            userService.fetchUser(session).thenAcceptAsync(user -> {
+                                messageQueue.addQueue(session, new TextMessage("halo juga " + user.getDisplayName() + Emoji.flyKiss));
+                                messageQueue.finishQueueing(session);
+                            });
                             break;
                         case "nyerah":
                             duaEmpatGame.giveUp(session);
