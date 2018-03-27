@@ -24,4 +24,12 @@ public class DuaEmpatTest {
         sol = logic.getSolution(Arrays.asList(12, 1, 24, 12));
         Assert.assertNotEquals(sol, "tidak ada");
     }
+
+    @Test
+    public void testAnswer() throws Exception {
+        boolean sol = logic.isCorrectAnswer(Arrays.asList(1, 1, 1, 12), "(1+1)*1*12");
+        Assert.assertEquals(sol, true);
+        sol = logic.isCorrectAnswer(Arrays.asList(1, 1, 1, 12), "(1-1)*1*12");
+        Assert.assertEquals(sol, false);
+    }
 }

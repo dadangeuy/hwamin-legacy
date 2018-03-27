@@ -1,6 +1,8 @@
 package com.rizaldi.hwamin.game.duaempat;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -10,16 +12,21 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DuaEmpatLogicService {
     private final String[] patterns = {"nnonnoo", "nnonono", "nnnoono", "nnnonoo", "nnnnooo"};
     private final String ops = "+-*/^";
-    private Random random = new Random();
-    private Map<String, String> solutions = new ConcurrentHashMap<>();
+    private final Random random = new Random();
+    private final Map<String, String> solutions = new ConcurrentHashMap<>();
+    private final ExpressionParser parser = new SpelExpressionParser();
 
     public List<Integer> getQuestion() {
-        return Arrays.asList(
-                random.nextInt(20),
-                random.nextInt(20),
-                random.nextInt(20),
-                random.nextInt(20));
+        return Arrays.asList(random.nextInt(20), random.nextInt(20), random.nextInt(20), random.nextInt(20));
     }
+
+    public boolean isCorrectAnswer(List<Integer> question, String answer) throws Exception {
+        if (isEqualsToGeneratedSolution(question, answer)) return true;
+        else if (answer.equals("tidak ada") && solutions.containsKey(getKey(question))) return false;
+        validateDigits(question, answer);
+        return evaluateAnswer(answer);
+    }
+
 
     public String getSolution(List<Integer> question) {
         findSolution(question);
@@ -61,83 +68,41 @@ public class DuaEmpatLogicService {
         return question.toString();
     }
 
-    public boolean isCorrectAnswer(List<Integer> question, String answer) throws Exception {
-        if (isEqualsToGeneratedSolution(question, answer)) return true;
-        else if (answer.equals("tidak ada") && solutions.containsKey(getKey(question))) return false;
-        validateAnswer(question, answer);
-        return evaluateAnswer(infixToPostfix(answer));
-    }
-
     private boolean isEqualsToGeneratedSolution(List<Integer> question, String answer) {
         return answer.equals(solutions.getOrDefault(getKey(question), "tidak ada"));
     }
 
     private boolean evaluateAnswer(String answer) throws Exception {
-        Stack<Float> s = new Stack<>();
-        try {
-            for (String l : answer.split(" ")) {
-                if (StringUtils.isNumeric(l)) s.push(Float.valueOf(l));
-                else s.push(applyOperator(s.pop(), s.pop(), l.charAt(0)));
-            }
-        } catch (EmptyStackException e) {
-            throw new Exception("Invalid entry.");
-        }
-        return (Math.abs(24 - s.peek()) < 0.001F);
+        Expression expression = parser.parseExpression(formatAnswer(answer));
+        Float result = expression.getValue(Float.class);
+        if (result == null) throw new Exception("invalid answer");
+        return (Math.abs(24.0F - result) < 0.001F);
     }
 
-    private void validateAnswer(List<Integer> question, String answer) throws Exception {
-        int total1 = 0, parens = 0, opsCount = 0;
-        for (char c : answer.toCharArray()) {
-            if (Character.isDigit(c)) total1 += 1 << (c - '0') * 4;
-            else if (c == '(') parens++;
-            else if (c == ')') parens--;
-            else if (ops.indexOf(c) != -1) opsCount++;
-            if (parens < 0) throw new Exception("Parentheses mismatch.");
+    private String formatAnswer(String answer) {
+        // add .0 to all number so parser will recognize it as double
+        StringBuilder newAnswer = new StringBuilder();
+        boolean doublify = false;
+        for (int i = 0; i < answer.length(); ) {
+            while (i < answer.length() && (answer.charAt(i) >= '0' && answer.charAt(i) <= '9')) {
+                doublify = true;
+                newAnswer.append(answer.charAt(i++));
+            }
+            if (doublify) {
+                doublify = false;
+                newAnswer.append(".0");
+            }
+            if (i < answer.length()) newAnswer.append(answer.charAt(i++));
         }
-        if (parens != 0) throw new Exception("Parentheses mismatch.");
-        if (opsCount != 3) throw new Exception("Wrong number of operators.");
-        int total2 = 0;
-        for (int d : question) total2 += 1 << d * 4;
-        if (total1 != total2) throw new Exception("Not the same digits.");
+        return newAnswer.toString();
     }
 
-    private String infixToPostfix(String infix) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        Stack<Integer> s = new Stack<>();
-        try {
-            for (char c : infix.toCharArray()) {
-                int idx = ops.indexOf(c);
-                if (idx != -1) {
-                    if (s.isEmpty())
-                        s.push(idx);
-                    else {
-                        while (!s.isEmpty()) {
-                            int prec2 = s.peek() / 2;
-                            int prec1 = idx / 2;
-                            if (prec2 >= prec1)
-                                sb.append(ops.charAt(s.pop()));
-                            else
-                                break;
-                        }
-                        s.push(idx);
-                    }
-                } else if (c == '(') {
-                    s.push(-2);
-                } else if (c == ')') {
-                    while (s.peek() != -2)
-                        sb.append(ops.charAt(s.pop()));
-                    s.pop();
-                } else {
-                    sb.append(c);
-                }
-            }
-            while (!s.isEmpty())
-                sb.append(ops.charAt(s.pop()));
-
-        } catch (EmptyStackException e) {
-            throw new Exception("Invalid entry.");
-        }
-        return sb.toString();
+    private void validateDigits(List<Integer> question, String answer) throws Exception {
+        String filter = answer.replaceAll("[^0-9]", " ");
+        List<Integer> digits = new ArrayList<>();
+        Scanner f = new Scanner(filter);
+        while (f.hasNextInt()) digits.add(f.nextInt());
+        if (!getKey(question).equals(getKey(digits))) throw new Exception("Not the same digits.");
     }
 
     private String postfixToInfix(String postfix) {
